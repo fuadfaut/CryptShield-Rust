@@ -1,0 +1,333 @@
+import { DashboardView } from "dashboard.slint";
+import { ConfigurationView } from "configuration.slint";
+import { NavItem } from "components.slint";
+import { LogsView } from "logs.slint";
+import { SetupView } from "setup.slint";
+
+export component AppWindow inherits Window {
+    in-out property <bool> protected: false;
+    in-out property <int> active-tab: 0;
+    in property <string> service-status: "Unknown";
+    in property <string> dnscrypt-proxy-status: "Unknown";
+    in property <string> nmcli-status: "Unknown";
+    in property <string> systemctl-status: "Unknown";
+    in property <string> pkexec-status: "Unknown";
+    in property <string> polkit-policy-status: "Unknown";
+    in property <string> current-resolver-id: "cloudflare";
+    in property <string> current-resolver-name: "Cloudflare";
+    in property <string> config-status: "unknown";
+    in property <bool> cache-enabled: true;
+    in property <bool> dnssec-enabled: true;
+    in property <bool> autostart-enabled: false;
+    in property <bool> is-applying: false;
+    in property <string> toast-message: "";
+    in property <string> logs-status: "Logs are loaded only when requested.";
+    in property <string> log-text: "";
+    callback toggle-protection();
+    callback select-tab(int);
+    callback select-resolver(string);
+    callback set-cache-enabled(bool);
+    callback set-dnssec-enabled(bool);
+    callback set-autostart-enabled(bool);
+    callback refresh-status();
+    callback refresh-logs();
+    callback clear-logs();
+
+    property <length> sidebar-width: 258px;
+    property <length> header-height: 80px;
+    property <length> page-padding: 32px;
+    property <length> main-width: root.width - root.sidebar-width;
+    property <length> content-width: root.main-width < 1088px ? root.main-width - 64px : 1024px;
+    property <length> content-x: root.sidebar-width + (root.main-width - root.content-width) / 2;
+    property <length> content-y: root.header-height + root.page-padding;
+
+    title: "CryptShield - DNSCrypt GUI";
+    width: 1096px;
+    height: 768px;
+    background: #1e1e2e;
+    default-font-family: "Inter";
+
+    Rectangle {
+        width: parent.width;
+        height: parent.height;
+        background: #1e1e2e;
+
+        Rectangle {
+            x: 0;
+            y: 0;
+            width: root.sidebar-width;
+            height: parent.height;
+            background: #181825;
+            border-width: 0px;
+
+            Rectangle {
+                x: root.sidebar-width - 1px;
+                y: 0;
+                width: 1px;
+                height: parent.height;
+                background: #313244;
+            }
+
+            Image {
+                x: 26px;
+                y: 78px;
+                width: 34px;
+                height: 34px;
+                source: @image-url("../assets/logo.svg");
+            }
+
+            Text {
+                x: 68px;
+                y: 75px;
+                text: "CryptShield";
+                color: #ffffff;
+                font-size: 22px;
+                font-weight: 900;
+            }
+
+            Text {
+                x: 68px;
+                y: 102px;
+                text: "DNSCrypt GUI";
+                color: #a6adc8;
+                font-size: 16px;
+            }
+
+            NavItem {
+                x: 12px;
+                y: 184px;
+                width: root.sidebar-width - 24px;
+                selected: root.active-tab == 0;
+                icon: @image-url("../assets/icon-dashboard.svg");
+                label: "Dashboard";
+                clicked => {
+                    root.select-tab(0);
+                }
+            }
+
+            NavItem {
+                x: 12px;
+                y: 240px;
+                width: root.sidebar-width - 24px;
+                selected: root.active-tab == 1;
+                icon: @image-url("../assets/icon-settings.svg");
+                label: "Configuration";
+                clicked => {
+                    root.select-tab(1);
+                }
+            }
+
+            NavItem {
+                x: 12px;
+                y: 296px;
+                width: root.sidebar-width - 24px;
+                selected: root.active-tab == 2;
+                icon: @image-url("../assets/icon-terminal.svg");
+                label: "System Logs";
+                clicked => {
+                    root.select-tab(2);
+                }
+            }
+
+            NavItem {
+                x: 12px;
+                y: 352px;
+                width: root.sidebar-width - 24px;
+                selected: root.active-tab == 3;
+                icon: @image-url("../assets/icon-book.svg");
+                label: "Tutorial & Setup";
+                clicked => {
+                    root.select-tab(3);
+                }
+            }
+
+            Rectangle {
+                x: 0;
+                y: parent.height - 104px;
+                width: root.sidebar-width;
+                height: 1px;
+                background: #313244;
+            }
+
+            Text {
+                x: 20px;
+                y: parent.height - 78px;
+                text: "Daemon Version:";
+                color: #a6adc8;
+                font-size: 14px;
+            }
+
+            Text {
+                x: root.sidebar-width - 58px;
+                y: parent.height - 78px;
+                text: "2.1.5";
+                color: #a6adc8;
+                font-size: 14px;
+            }
+
+            Text {
+                x: 20px;
+                y: parent.height - 48px;
+                text: "Systemd:";
+                color: #a6adc8;
+                font-size: 14px;
+            }
+
+            Text {
+                x: root.sidebar-width - 74px;
+                y: parent.height - 48px;
+                text: root.service-status;
+                color: root.service-status == "active" ? #10b981 : #a6adc8;
+                font-size: 14px;
+            }
+        }
+
+        Rectangle {
+            x: root.sidebar-width;
+            y: 0;
+            width: root.main-width;
+            height: root.header-height;
+            background: #1e1e2ecc;
+            border-width: 0px;
+
+            Rectangle {
+                x: 0;
+                y: parent.height - 1px;
+                width: parent.width;
+                height: 1px;
+                background: #313244;
+            }
+
+            Text {
+                x: 32px;
+                y: 26px;
+                text: root.active-tab == 0 ? "Dashboard" : root.active-tab == 1 ? "Configuration" : root.active-tab == 2 ? "System Logs" : "Tutorial & Setup";
+                color: #ffffff;
+                font-size: 24px;
+                font-weight: 700;
+            }
+
+            Rectangle {
+                x: parent.width - 188px;
+                y: 25px;
+                width: 112px;
+                height: 28px;
+                border-radius: 14px;
+                background: #313244;
+                border-width: 1px;
+                border-color: #45475a;
+
+                Text {
+                    text: "localhost:53";
+                    color: #a6adc8;
+                    font-size: 12px;
+                    horizontal-alignment: center;
+                    vertical-alignment: center;
+                }
+            }
+
+            Image {
+                x: parent.width - 50px;
+                y: 30px;
+                width: 20px;
+                height: 20px;
+                source: @image-url("../assets/icon-bell.svg");
+            }
+        }
+
+        DashboardView {
+            visible: root.active-tab == 0;
+            x: root.content-x;
+            y: root.content-y;
+            width: root.content-width;
+            height: 436px;
+            protected: root.protected;
+            is-applying: root.is-applying;
+            current-resolver-name: root.current-resolver-name;
+            toggle-protection => {
+                root.toggle-protection();
+            }
+        }
+
+        ConfigurationView {
+            visible: root.active-tab == 1;
+            x: root.content-x;
+            y: root.content-y;
+            width: root.content-width;
+            height: 512px;
+            current-resolver-id: root.current-resolver-id;
+            current-resolver-name: root.current-resolver-name;
+            config-status: root.config-status;
+            cache-enabled: root.cache-enabled;
+            dnssec-enabled: root.dnssec-enabled;
+            autostart-enabled: root.autostart-enabled;
+            select-resolver(id) => {
+                root.select-resolver(id);
+            }
+            set-cache-enabled(value) => {
+                root.set-cache-enabled(value);
+            }
+            set-dnssec-enabled(value) => {
+                root.set-dnssec-enabled(value);
+            }
+            set-autostart-enabled(value) => {
+                root.set-autostart-enabled(value);
+            }
+        }
+
+        LogsView {
+            visible: root.active-tab == 2;
+            x: root.content-x;
+            y: root.content-y;
+            width: root.content-width;
+            height: 520px;
+            logs-status: root.logs-status;
+            log-text: root.log-text;
+            refresh-logs => {
+                root.refresh-logs();
+            }
+            clear-logs => {
+                root.clear-logs();
+            }
+        }
+
+        SetupView {
+            visible: root.active-tab == 3;
+            x: root.content-x;
+            y: root.content-y;
+            width: root.content-width;
+            height: 440px;
+            service-status: root.service-status;
+            dnscrypt-proxy-status: root.dnscrypt-proxy-status;
+            nmcli-status: root.nmcli-status;
+            systemctl-status: root.systemctl-status;
+            pkexec-status: root.pkexec-status;
+            polkit-policy-status: root.polkit-policy-status;
+            refresh-requested => {
+                root.refresh-status();
+            }
+        }
+
+        Rectangle {
+            visible: root.toast-message != "";
+            x: root.sidebar-width + root.main-width - 424px;
+            y: parent.height - 76px;
+            width: 392px;
+            height: 44px;
+            border-radius: 12px;
+            border-width: 1px;
+            border-color: #45475a;
+            background: #313244;
+
+            Text {
+                x: 16px;
+                y: 13px;
+                width: parent.width - 32px;
+                text: root.toast-message;
+                color: #cdd6f4;
+                font-size: 13px;
+                font-weight: 700;
+            }
+        }
+    }
+}

@@ -1,0 +1,169 @@
+component StatusRow inherits Rectangle {
+    in property <string> label;
+    in property <string> detail;
+    in property <bool> ok;
+
+    height: 46px;
+    background: transparent;
+
+    Rectangle {
+        x: 0;
+        y: 18px;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        background: root.ok ? #10b981 : #f38ba8;
+    }
+
+    Text {
+        x: 24px;
+        y: 12px;
+        width: parent.width / 2;
+        text: root.label;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    Text {
+        x: parent.width - 168px;
+        y: 12px;
+        width: 168px;
+        text: root.detail;
+        color: root.ok ? #a6e3a1 : #f38ba8;
+        font-size: 14px;
+        horizontal-alignment: right;
+    }
+}
+
+export component SetupView inherits Rectangle {
+    in property <string> service-status;
+    in property <string> dnscrypt-proxy-status;
+    in property <string> nmcli-status;
+    in property <string> systemctl-status;
+    in property <string> pkexec-status;
+    in property <string> polkit-policy-status;
+    callback refresh-requested;
+
+    border-radius: 24px;
+    border-width: 1px;
+    border-color: #313244;
+    background: #27273a;
+
+    Text {
+        x: 32px;
+        y: 30px;
+        text: "Tutorial & Setup";
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    Text {
+        x: 32px;
+        y: 68px;
+        width: parent.width - 64px;
+        text: "Read-only diagnostics for the tools CryptShield needs before privileged actions are wired.";
+        color: #a6adc8;
+        font-size: 15px;
+    }
+
+    Rectangle {
+        x: 32px;
+        y: 116px;
+        width: parent.width - 64px;
+        height: 1px;
+        background: #313244;
+    }
+
+    StatusRow {
+        x: 32px;
+        y: 138px;
+        width: parent.width - 64px;
+        label: "dnscrypt-proxy";
+        detail: root.dnscrypt-proxy-status;
+        ok: root.dnscrypt-proxy-status == "found";
+    }
+
+    StatusRow {
+        x: 32px;
+        y: 184px;
+        width: parent.width - 64px;
+        label: "NetworkManager CLI";
+        detail: root.nmcli-status;
+        ok: root.nmcli-status == "found";
+    }
+
+    StatusRow {
+        x: 32px;
+        y: 230px;
+        width: parent.width - 64px;
+        label: "systemctl";
+        detail: root.systemctl-status;
+        ok: root.systemctl-status == "found";
+    }
+
+    StatusRow {
+        x: 32px;
+        y: 276px;
+        width: parent.width - 64px;
+        label: "Polkit pkexec";
+        detail: root.pkexec-status;
+        ok: root.pkexec-status == "found";
+    }
+
+    StatusRow {
+        x: 32px;
+        y: 322px;
+        width: parent.width - 64px;
+        label: "CryptShield Polkit policy";
+        detail: root.polkit-policy-status;
+        ok: root.polkit-policy-status == "installed";
+    }
+
+    Rectangle {
+        x: 32px;
+        y: parent.height - 58px;
+        width: parent.width - 64px;
+        height: 1px;
+        background: #313244;
+    }
+
+    Text {
+        x: 32px;
+        y: parent.height - 34px;
+        width: parent.width - 160px;
+        text: "dnscrypt-proxy service: " + root.service-status;
+        color: root.service-status == "active" ? #a6e3a1 : #a6adc8;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    Rectangle {
+        x: parent.width - 116px;
+        y: parent.height - 42px;
+        width: 84px;
+        height: 28px;
+        border-radius: 14px;
+        background: refresh-touch.has-hover ? #45475a : #313244;
+        border-width: 1px;
+        border-color: #45475a;
+
+        Text {
+            text: "Refresh";
+            color: #cdd6f4;
+            font-size: 12px;
+            font-weight: 800;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+
+        refresh-touch := TouchArea {
+            width: parent.width;
+            height: parent.height;
+            clicked => {
+                root.refresh-requested();
+            }
+        }
+    }
+}

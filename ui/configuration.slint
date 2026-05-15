@@ -1,0 +1,231 @@
+import { ProtectionSwitch } from "components.slint";
+
+component ResolverOption inherits Rectangle {
+    in property <string> resolver-id;
+    in property <string> name;
+    in property <string> description;
+    in property <bool> selected;
+    callback chosen(string);
+
+    height: 58px;
+    border-radius: 10px;
+    border-width: 1px;
+    border-color: root.selected ? #89b4fa : #313244;
+    background: root.selected ? #313244 : #1e1e2e;
+    animate background, border-color { duration: 140ms; easing: ease; }
+
+    Text {
+        x: 16px;
+        y: 9px;
+        width: parent.width - 112px;
+        text: root.name;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    Text {
+        x: 16px;
+        y: 32px;
+        width: parent.width - 112px;
+        text: root.description;
+        color: #a6adc8;
+        font-size: 12px;
+    }
+
+    Rectangle {
+        x: parent.width - 78px;
+        y: 17px;
+        width: 62px;
+        height: 24px;
+        border-radius: 12px;
+        background: root.selected ? #89b4fa : #313244;
+
+        Text {
+            text: root.selected ? "Active" : "Select";
+            color: root.selected ? #111827 : #cdd6f4;
+            font-size: 12px;
+            font-weight: 800;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+    }
+
+    TouchArea {
+        width: root.width;
+        height: root.height;
+        clicked => {
+            root.chosen(root.resolver-id);
+        }
+    }
+}
+
+component ToggleRow inherits Rectangle {
+    in property <string> label;
+    in property <string> description;
+    in property <bool> checked;
+    callback toggled(bool);
+
+    height: 60px;
+    background: transparent;
+
+    Text {
+        x: 0;
+        y: 8px;
+        width: parent.width - 132px;
+        text: root.label;
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 800;
+    }
+
+    Text {
+        x: 0;
+        y: 32px;
+        width: parent.width - 132px;
+        text: root.description;
+        color: #a6adc8;
+        font-size: 12px;
+    }
+
+    ProtectionSwitch {
+        x: parent.width - 96px;
+        y: 6px;
+        checked: root.checked;
+        toggled => {
+            root.toggled(!root.checked);
+        }
+    }
+}
+
+export component ConfigurationView inherits Rectangle {
+    in property <string> current-resolver-id;
+    in property <string> current-resolver-name;
+    in property <string> config-status;
+    in property <bool> cache-enabled;
+    in property <bool> dnssec-enabled;
+    in property <bool> autostart-enabled;
+    callback select-resolver(string);
+    callback set-cache-enabled(bool);
+    callback set-dnssec-enabled(bool);
+    callback set-autostart-enabled(bool);
+
+    border-radius: 24px;
+    border-width: 1px;
+    border-color: #313244;
+    background: #27273a;
+
+    Text {
+        x: 32px;
+        y: 28px;
+        text: "Configuration";
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    Text {
+        x: 32px;
+        y: 65px;
+        width: parent.width - 64px;
+        text: "Current resolver: " + root.current-resolver-name + "  |  config: " + root.config-status;
+        color: #a6adc8;
+        font-size: 14px;
+    }
+
+    ResolverOption {
+        x: 32px;
+        y: 112px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "cloudflare";
+        name: "Cloudflare";
+        description: "Fast general-purpose DNSCrypt resolver.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => {
+            root.select-resolver(id);
+        }
+    }
+
+    ResolverOption {
+        x: 56px + (parent.width - 88px) / 2;
+        y: 112px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "quad9";
+        name: "Quad9";
+        description: "Security-focused resolver with threat blocking.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => {
+            root.select-resolver(id);
+        }
+    }
+
+    ResolverOption {
+        x: 32px;
+        y: 184px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "adguard-dns";
+        name: "AdGuard DNS";
+        description: "Privacy resolver with ad and tracker filtering.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => {
+            root.select-resolver(id);
+        }
+    }
+
+    ResolverOption {
+        x: 56px + (parent.width - 88px) / 2;
+        y: 184px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "google";
+        name: "Google";
+        description: "High-availability public DNS resolver.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => {
+            root.select-resolver(id);
+        }
+    }
+
+    Rectangle {
+        x: 32px;
+        y: 268px;
+        width: parent.width - 64px;
+        height: 1px;
+        background: #313244;
+    }
+
+    ToggleRow {
+        x: 32px;
+        y: 292px;
+        width: parent.width - 64px;
+        label: "DNS cache";
+        description: "Keep repeated lookups fast when supported by the daemon config.";
+        checked: root.cache-enabled;
+        toggled(value) => {
+            root.set-cache-enabled(value);
+        }
+    }
+
+    ToggleRow {
+        x: 32px;
+        y: 356px;
+        width: parent.width - 64px;
+        label: "Require DNSSEC";
+        description: "Prefer resolvers that validate signed DNS responses.";
+        checked: root.dnssec-enabled;
+        toggled(value) => {
+            root.set-dnssec-enabled(value);
+        }
+    }
+
+    ToggleRow {
+        x: 32px;
+        y: 420px;
+        width: parent.width - 64px;
+        label: "Autostart";
+        description: "Remember preference locally until system integration is added.";
+        checked: root.autostart-enabled;
+        toggled(value) => {
+            root.set-autostart-enabled(value);
+        }
+    }
+}

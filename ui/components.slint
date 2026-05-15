@@ -1,0 +1,154 @@
+export component NavItem inherits Rectangle {
+    in property <image> icon;
+    in property <string> label;
+    in property <bool> selected;
+    callback clicked;
+
+    height: 42px;
+    border-radius: 8px;
+    background: selected ? #45475a : (touch.has-hover ? #313244 : transparent);
+    animate background { duration: 120ms; easing: ease; }
+
+    Image {
+        x: 18px;
+        y: 12px;
+        width: 18px;
+        height: 18px;
+        source: root.icon;
+    }
+
+    Text {
+        x: 46px;
+        y: 11px;
+        width: parent.width - 62px;
+        text: root.label;
+        color: root.selected ? #ffffff : #a6adc8;
+        font-size: 15px;
+        font-weight: root.selected ? 800 : 500;
+    }
+
+    touch := TouchArea {
+        width: root.width;
+        height: root.height;
+        clicked => {
+            root.clicked();
+        }
+    }
+}
+
+export component MetricCard inherits Rectangle {
+    in property <image> icon;
+    in property <string> label;
+    in property <string> value;
+    in property <color> icon-background;
+
+    height: 92px;
+    border-radius: 16px;
+    border-width: 1px;
+    border-color: #313244;
+    background: #27273a;
+
+    Rectangle {
+        x: 20px;
+        y: 22px;
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: root.icon-background;
+
+        Image {
+            x: 12px;
+            y: 12px;
+            width: 24px;
+            height: 24px;
+            source: root.icon;
+        }
+    }
+
+    Text {
+        x: 84px;
+        y: 21px;
+        width: parent.width - 104px;
+        text: root.label;
+        color: #a6adc8;
+        font-size: 14px;
+    }
+
+    Text {
+        x: 84px;
+        y: 46px;
+        width: parent.width - 104px;
+        text: root.value;
+        color: #ffffff;
+        font-size: 18px;
+        font-weight: 800;
+    }
+}
+
+export component ProtectionSwitch inherits Rectangle {
+    in property <bool> checked;
+    callback toggled;
+
+    width: 96px;
+    height: 48px;
+    border-radius: 24px;
+    background: checked ? #a6e3a1 : #313244;
+    border-width: 2px;
+    border-color: checked ? #a6e3a180 : #31324480;
+    animate background, border-color { duration: 220ms; easing: ease; }
+
+    knob := Rectangle {
+        width: 34px;
+        height: 34px;
+        x: 7px + progress * 48px;
+        y: 7px;
+        border-radius: 17px;
+        background: root.checked ? #ffffff : #9ca3af;
+        property <float> progress: root.checked ? 1 : 0;
+        animate progress, background { duration: 240ms; easing: ease; }
+
+        Image {
+            x: 8px;
+            y: 8px;
+            width: 18px;
+            height: 18px;
+            source: root.checked ? @image-url("../assets/icon-check.svg") : @image-url("../assets/icon-power.svg");
+        }
+    }
+
+    TouchArea {
+        width: root.width;
+        height: root.height;
+        clicked => {
+            root.toggled();
+        }
+    }
+}
+
+export component PlaceholderView inherits Rectangle {
+    in property <string> title;
+    in property <string> description;
+
+    border-radius: 24px;
+    border-width: 1px;
+    border-color: #313244;
+    background: #27273a;
+
+    Text {
+        x: 32px;
+        y: 30px;
+        text: root.title;
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    Text {
+        x: 32px;
+        y: 68px;
+        width: parent.width - 64px;
+        text: root.description;
+        color: #a6adc8;
+        font-size: 15px;
+    }
+}

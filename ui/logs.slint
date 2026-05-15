@@ -1,0 +1,107 @@
+export component LogsView inherits Rectangle {
+    in property <string> logs-status;
+    in property <string> log-text;
+    callback refresh-logs();
+    callback clear-logs();
+
+    border-radius: 24px;
+    border-width: 1px;
+    border-color: #313244;
+    background: #27273a;
+
+    Text {
+        x: 32px;
+        y: 28px;
+        text: "System Logs";
+        color: #ffffff;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    Text {
+        x: 32px;
+        y: 65px;
+        width: parent.width - 260px;
+        text: root.logs-status;
+        color: #a6adc8;
+        font-size: 14px;
+    }
+
+    Rectangle {
+        x: parent.width - 216px;
+        y: 28px;
+        width: 84px;
+        height: 30px;
+        border-radius: 15px;
+        background: refresh-touch.has-hover ? #45475a : #313244;
+        border-width: 1px;
+        border-color: #45475a;
+
+        Text {
+            text: "Refresh";
+            color: #cdd6f4;
+            font-size: 12px;
+            font-weight: 800;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+
+        refresh-touch := TouchArea {
+            width: parent.width;
+            height: parent.height;
+            clicked => {
+                root.refresh-logs();
+            }
+        }
+    }
+
+    Rectangle {
+        x: parent.width - 116px;
+        y: 28px;
+        width: 84px;
+        height: 30px;
+        border-radius: 15px;
+        background: clear-touch.has-hover ? #45475a : #313244;
+        border-width: 1px;
+        border-color: #45475a;
+
+        Text {
+            text: "Clear";
+            color: #cdd6f4;
+            font-size: 12px;
+            font-weight: 800;
+            horizontal-alignment: center;
+            vertical-alignment: center;
+        }
+
+        clear-touch := TouchArea {
+            width: parent.width;
+            height: parent.height;
+            clicked => {
+                root.clear-logs();
+            }
+        }
+    }
+
+    Rectangle {
+        x: 32px;
+        y: 104px;
+        width: parent.width - 64px;
+        height: parent.height - 136px;
+        border-radius: 12px;
+        border-width: 1px;
+        border-color: #313244;
+        background: #181825;
+
+        Text {
+            x: 16px;
+            y: 14px;
+            width: parent.width - 32px;
+            height: parent.height - 28px;
+            text: root.log-text == "" ? "No logs loaded yet." : root.log-text;
+            color: root.log-text == "" ? #6c7086 : #cdd6f4;
+            font-size: 12px;
+            font-family: "monospace";
+        }
+    }
+}
