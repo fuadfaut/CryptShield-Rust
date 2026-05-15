@@ -186,3 +186,8 @@ Recommended path:
 ## Current MVP Folder
 
 CRYPTSHIELD-RUST now contains a non-mutating Rust/Slint migration prototype. It includes the dashboard shell, local Configuration and Logs views, read-only diagnostics, validation-only `--system-helper` handling, a Polkit policy template, and test-driven dry-run plans for config/system changes. It is meant to answer: "Can CryptShield keep its current visual identity while dropping WebKit/Tauri, while moving toward a safer Rust-first backend?"
+
+
+## README parity adjustment
+
+The Rust/Slint branch now treats the original `fuadfaut/CryptShield` README as the product contract. The first parity pass restored the 10 resolver choices, exact dnscrypt-proxy resolver names, default load-balanced behavior, loopback-safe NetworkManager discovery, and IPv4/IPv6 DNS restore planning.

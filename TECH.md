@@ -264,3 +264,12 @@ It also covers root-only helper gating via effective UID parsing.
 - Should resolver metadata live in Rust code, TOML, or JSON?
 - Should config mutation preserve comments exactly or rewrite canonical TOML?
 - Should GTK remain the fallback path if Slint desktop integration is not sufficient?
+
+
+## Original README alignment
+
+- Resolver support mirrors `fuadfaut/CryptShield`: default load-balanced mode plus Cloudflare, Google, Quad9, AdGuard, NextDNS, Cisco, Mullvad, CleanBrowsing, and Tiarap DNS.
+- UI resolver IDs are mapped to exact `dnscrypt-proxy` `server_names` values before config updates.
+- Default mode removes the explicit `server_names` entry so `dnscrypt-proxy` can use its own resolver selection.
+- NetworkManager plans follow the original helper shape: point active connections to `127.0.0.1`, disable IPv4/IPv6 auto DNS while protected, and restore both on stop.
+- Active connection discovery reads `nmcli -t -f UUID,DEVICE connection show --active` and ignores `lo`.

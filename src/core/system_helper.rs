@@ -173,6 +173,36 @@ mod tests {
     }
 
     #[test]
+    fn parses_default_load_balanced_start_request() {
+        let request = parse_helper_request(&args(&[
+            "start",
+            "default",
+            "true",
+            "true",
+            "123e4567-e89b-12d3-a456-426614174000",
+        ]))
+        .expect("valid helper request");
+
+        assert_eq!(request.action, HelperAction::Start);
+        assert_eq!(request.resolver_id.as_deref(), Some("default"));
+    }
+
+    #[test]
+    fn parses_original_readme_exact_resolver_name() {
+        let request = parse_helper_request(&args(&[
+            "restart",
+            "mullvad-doh",
+            "true",
+            "true",
+            "123e4567-e89b-12d3-a456-426614174000",
+        ]))
+        .expect("valid helper request");
+
+        assert_eq!(request.action, HelperAction::Restart);
+        assert_eq!(request.resolver_id.as_deref(), Some("mullvad-doh"));
+    }
+
+    #[test]
     fn parses_stop_request() {
         let request =
             parse_helper_request(&args(&["stop", "123e4567-e89b-12d3-a456-426614174000"]))

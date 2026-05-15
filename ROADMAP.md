@@ -24,7 +24,7 @@ Status: mostly complete for the non-mutating foundation.
 
 - Split `app.slint` into smaller Slint files. Done.
 - Split Rust `main.rs` into `app`, `state`, `commands`, `core`, and `platform`. Partially done: `app`, `state`, `commands`, and `core` exist.
-- Add resolver database module. Initial allowlist done.
+- Add resolver database module. Done for the original README's 10 resolver choices, including default load-balanced mode.
 - Add app state struct. Done.
 - Add dependency checker. Initial read-only checker done.
 - Add service status read. Initial `systemctl is-active dnscrypt-proxy` read done.
@@ -60,9 +60,9 @@ Exit criteria:
 - Add Polkit policy under `data/`. Initial policy template done.
 - Add resolver/action/boolean validation tests. Initial helper parser tests done.
 - Add root-only helper guard. Initial TDD effective-UID guard done.
-- Add structured helper action plans for `systemctl` and `nmcli`. Initial TDD dry-run plans done.
+- Add structured helper action plans for `systemctl` and `nmcli`. Initial TDD dry-run plans now match the original helper's IPv4/IPv6 NetworkManager behavior.
 - Add structured config update plan for helper start/restart. Initial TDD dry-run plan done.
-- Discover active NetworkManager connections for helper requests. Initial read-only parser done.
+- Discover active NetworkManager connections for helper requests. Initial read-only parser now follows `UUID,DEVICE` output and skips loopback.
 - Wire start/stop/restart from Slint through Rust and `pkexec`.
 - Keep GUI responsive during Polkit and NetworkManager work.
 
@@ -74,6 +74,10 @@ Exit criteria:
 - No arbitrary shell execution.
 
 Next tasks:
+- Implement the structured command executor behind a dry-run/real-run boundary.
+- Add helper integration tests that invoke `--system-helper` with the original README resolver names.
+- Add query-log parsing for `/var/log/dnscrypt-query.log` counters.
+- Add RPM install rules for the Polkit policy and desktop metadata.
 - Add an executor abstraction for structured command plans with unit tests for success/failure handling.
 - Add validation-only integration tests for `--system-helper` exit codes.
 - Wire dashboard toggle to build a `pkexec` plan from active NetworkManager connections without executing it.
@@ -82,7 +86,7 @@ Next tasks:
 ## Phase 4: Settings, Logs, And Traffic
 
 - Build real Configuration view. Initial local-state view done.
-- Add resolver selector. Initial allowlist selector done.
+- Add resolver selector. Done for the original README's default, Cloudflare, Google, Quad9, AdGuard, NextDNS, Cisco, Mullvad, CleanBrowsing, and Tiarap DNS choices.
 - Add cache/DNSSEC toggles. Initial local-state toggles done.
 - Add lazy `journalctl` stream for logs page. Initial read-only snapshot loading done; streaming/follow is still pending.
 - Add lazy query log tail while protection is active.

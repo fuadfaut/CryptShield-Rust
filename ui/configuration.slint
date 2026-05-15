@@ -7,7 +7,7 @@ component ResolverOption inherits Rectangle {
     in property <bool> selected;
     callback chosen(string);
 
-    height: 58px;
+    height: 52px;
     border-radius: 10px;
     border-width: 1px;
     border-color: root.selected ? #89b4fa : #313244;
@@ -15,28 +15,28 @@ component ResolverOption inherits Rectangle {
     animate background, border-color { duration: 140ms; easing: ease; }
 
     Text {
-        x: 16px;
-        y: 9px;
-        width: parent.width - 112px;
+        x: 14px;
+        y: 6px;
+        width: parent.width - 106px;
         text: root.name;
         color: #ffffff;
-        font-size: 15px;
+        font-size: 14px;
         font-weight: 800;
     }
 
     Text {
-        x: 16px;
-        y: 32px;
-        width: parent.width - 112px;
+        x: 14px;
+        y: 28px;
+        width: parent.width - 106px;
         text: root.description;
         color: #a6adc8;
-        font-size: 12px;
+        font-size: 11px;
     }
 
     Rectangle {
-        x: parent.width - 78px;
-        y: 17px;
-        width: 62px;
+        x: parent.width - 74px;
+        y: 14px;
+        width: 58px;
         height: 24px;
         border-radius: 12px;
         background: root.selected ? #89b4fa : #313244;
@@ -44,7 +44,7 @@ component ResolverOption inherits Rectangle {
         Text {
             text: root.selected ? "Active" : "Select";
             color: root.selected ? #111827 : #cdd6f4;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 800;
             horizontal-alignment: center;
             vertical-alignment: center;
@@ -66,12 +66,12 @@ component ToggleRow inherits Rectangle {
     in property <bool> checked;
     callback toggled(bool);
 
-    height: 60px;
+    height: 56px;
     background: transparent;
 
     Text {
         x: 0;
-        y: 8px;
+        y: 6px;
         width: parent.width - 132px;
         text: root.label;
         color: #ffffff;
@@ -81,7 +81,7 @@ component ToggleRow inherits Rectangle {
 
     Text {
         x: 0;
-        y: 32px;
+        y: 30px;
         width: parent.width - 132px;
         text: root.description;
         color: #a6adc8;
@@ -90,7 +90,7 @@ component ToggleRow inherits Rectangle {
 
     ProtectionSwitch {
         x: parent.width - 96px;
-        y: 6px;
+        y: 4px;
         checked: root.checked;
         toggled => {
             root.toggled(!root.checked);
@@ -117,7 +117,7 @@ export component ConfigurationView inherits Rectangle {
 
     Text {
         x: 32px;
-        y: 28px;
+        y: 24px;
         text: "Configuration";
         color: #ffffff;
         font-size: 22px;
@@ -126,7 +126,7 @@ export component ConfigurationView inherits Rectangle {
 
     Text {
         x: 32px;
-        y: 65px;
+        y: 60px;
         width: parent.width - 64px;
         text: "Current resolver: " + root.current-resolver-name + "  |  config: " + root.config-status;
         color: #a6adc8;
@@ -135,59 +135,117 @@ export component ConfigurationView inherits Rectangle {
 
     ResolverOption {
         x: 32px;
-        y: 112px;
+        y: 100px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "default";
+        name: "Default";
+        description: "Load-balanced dnscrypt-proxy resolver set.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => { root.select-resolver(id); }
+    }
+
+    ResolverOption {
+        x: 56px + (parent.width - 88px) / 2;
+        y: 100px;
         width: (parent.width - 88px) / 2;
         resolver-id: "cloudflare";
         name: "Cloudflare";
         description: "Fast general-purpose DNSCrypt resolver.";
         selected: root.current-resolver-id == self.resolver-id;
-        chosen(id) => {
-            root.select-resolver(id);
-        }
-    }
-
-    ResolverOption {
-        x: 56px + (parent.width - 88px) / 2;
-        y: 112px;
-        width: (parent.width - 88px) / 2;
-        resolver-id: "quad9";
-        name: "Quad9";
-        description: "Security-focused resolver with threat blocking.";
-        selected: root.current-resolver-id == self.resolver-id;
-        chosen(id) => {
-            root.select-resolver(id);
-        }
+        chosen(id) => { root.select-resolver(id); }
     }
 
     ResolverOption {
         x: 32px;
-        y: 184px;
-        width: (parent.width - 88px) / 2;
-        resolver-id: "adguard-dns";
-        name: "AdGuard DNS";
-        description: "Privacy resolver with ad and tracker filtering.";
-        selected: root.current-resolver-id == self.resolver-id;
-        chosen(id) => {
-            root.select-resolver(id);
-        }
-    }
-
-    ResolverOption {
-        x: 56px + (parent.width - 88px) / 2;
-        y: 184px;
+        y: 160px;
         width: (parent.width - 88px) / 2;
         resolver-id: "google";
         name: "Google";
         description: "High-availability public DNS resolver.";
         selected: root.current-resolver-id == self.resolver-id;
-        chosen(id) => {
-            root.select-resolver(id);
-        }
+        chosen(id) => { root.select-resolver(id); }
+    }
+
+    ResolverOption {
+        x: 56px + (parent.width - 88px) / 2;
+        y: 160px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "quad9";
+        name: "Quad9";
+        description: "Security resolver with threat blocking.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => { root.select-resolver(id); }
+    }
+
+    ResolverOption {
+        x: 32px;
+        y: 220px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "adguard";
+        name: "AdGuard DNS";
+        description: "Privacy resolver with ad filtering.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => { root.select-resolver(id); }
+    }
+
+    ResolverOption {
+        x: 56px + (parent.width - 88px) / 2;
+        y: 220px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "nextdns";
+        name: "NextDNS";
+        description: "Configurable privacy-focused resolver.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => { root.select-resolver(id); }
+    }
+
+    ResolverOption {
+        x: 32px;
+        y: 280px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "cisco";
+        name: "Cisco";
+        description: "Security-oriented public resolver.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => { root.select-resolver(id); }
+    }
+
+    ResolverOption {
+        x: 56px + (parent.width - 88px) / 2;
+        y: 280px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "mullvad";
+        name: "Mullvad";
+        description: "Privacy-first DoH resolver.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => { root.select-resolver(id); }
+    }
+
+    ResolverOption {
+        x: 32px;
+        y: 340px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "cleanbrowsing";
+        name: "CleanBrowsing";
+        description: "Family/adult-content filtering.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => { root.select-resolver(id); }
+    }
+
+    ResolverOption {
+        x: 56px + (parent.width - 88px) / 2;
+        y: 340px;
+        width: (parent.width - 88px) / 2;
+        resolver-id: "tiarapp";
+        name: "Tiarap DNS";
+        description: "Community DNS-over-HTTPS resolver.";
+        selected: root.current-resolver-id == self.resolver-id;
+        chosen(id) => { root.select-resolver(id); }
     }
 
     Rectangle {
         x: 32px;
-        y: 268px;
+        y: 412px;
         width: parent.width - 64px;
         height: 1px;
         background: #313244;
@@ -195,37 +253,31 @@ export component ConfigurationView inherits Rectangle {
 
     ToggleRow {
         x: 32px;
-        y: 292px;
+        y: 432px;
         width: parent.width - 64px;
         label: "DNS cache";
         description: "Keep repeated lookups fast when supported by the daemon config.";
         checked: root.cache-enabled;
-        toggled(value) => {
-            root.set-cache-enabled(value);
-        }
+        toggled(value) => { root.set-cache-enabled(value); }
     }
 
     ToggleRow {
         x: 32px;
-        y: 356px;
+        y: 492px;
         width: parent.width - 64px;
         label: "Require DNSSEC";
         description: "Prefer resolvers that validate signed DNS responses.";
         checked: root.dnssec-enabled;
-        toggled(value) => {
-            root.set-dnssec-enabled(value);
-        }
+        toggled(value) => { root.set-dnssec-enabled(value); }
     }
 
     ToggleRow {
         x: 32px;
-        y: 420px;
+        y: 552px;
         width: parent.width - 64px;
         label: "Autostart";
         description: "Remember preference locally until system integration is added.";
         checked: root.autostart-enabled;
-        toggled(value) => {
-            root.set-autostart-enabled(value);
-        }
+        toggled(value) => { root.set-autostart-enabled(value); }
     }
 }

@@ -63,9 +63,8 @@ impl AppState {
         };
 
         if let Some(config) = config_result.config {
-            if let Some(resolver_id) = config.resolver_id {
-                state.select_resolver(&resolver_id);
-            }
+            state.current_resolver_id =
+                resolvers::ui_id_for_config_name(config.resolver_id.as_deref()).to_owned();
 
             if let Some(cache_enabled) = config.cache_enabled {
                 state.cache_enabled = cache_enabled;
@@ -84,8 +83,9 @@ impl AppState {
     }
 
     pub fn select_resolver(&mut self, resolver_id: &str) {
-        if resolvers::is_supported(resolver_id) {
-            self.current_resolver_id = resolver_id.to_owned();
+        if let Some(config_name) = resolvers::config_name(resolver_id) {
+            self.current_resolver_id =
+                resolvers::ui_id_for_config_name(Some(config_name)).to_owned();
         }
     }
 
@@ -192,10 +192,10 @@ mod tests {
     fn ignores_unknown_resolvers() {
         let mut state = AppState::default();
 
-        state.select_resolver("quad9");
+        state.select_resolver("mullvad-doh");
         state.select_resolver("not-supported");
 
-        assert_eq!(state.current_resolver_id, "quad9");
-        assert_eq!(state.current_resolver_name(), "Quad9");
+        assert_eq!(state.current_resolver_id, "mullvad");
+        assert_eq!(state.current_resolver_name(), "Mullvad");
     }
 }

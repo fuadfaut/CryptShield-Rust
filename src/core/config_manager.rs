@@ -82,13 +82,17 @@ pub fn update_config_contents(
         .map_err(|_| ConfigUpdateError::ParseError)?;
 
     if let Some(resolver_id) = &desired.resolver_id {
-        if !resolvers::is_supported(resolver_id) {
+        let Some(config_name) = resolvers::config_name(resolver_id) else {
             return Err(ConfigUpdateError::UnsupportedResolver(resolver_id.clone()));
-        }
+        };
 
-        let mut server_names = Array::default();
-        server_names.push(resolver_id.as_str());
-        document["server_names"] = value(server_names);
+        if config_name.is_empty() {
+            document.remove("server_names");
+        } else {
+            let mut server_names = Array::default();
+            server_names.push(config_name);
+            document["server_names"] = value(server_names);
+        }
     }
 
     if let Some(cache_enabled) = desired.cache_enabled {
@@ -148,6 +152,41 @@ require_dnssec = false
         assert_eq!(config.resolver_id.as_deref(), Some("quad9"));
         assert_eq!(config.cache_enabled, Some(true));
         assert_eq!(config.dnssec_required, Some(true));
+    }
+
+    #[test]
+    fn writes_original_dnscrypt_server_name_for_alias_resolver() {
+        let updated = update_config_contents(
+            "server_names = ['cloudflare']\n",
+            &DnscryptConfig {
+                resolver_id: Some("mullvad".to_owned()),
+                cache_enabled: None,
+                dnssec_required: None,
+            },
+        )
+        .expect("updated config");
+
+        let parsed = parse_config(&updated).expect("valid updated toml");
+        let config = parsed.config.expect("config");
+        assert_eq!(config.resolver_id.as_deref(), Some("mullvad-doh"));
+    }
+
+    #[test]
+    fn removes_server_names_for_default_load_balanced_mode() {
+        let updated = update_config_contents(
+            "server_names = ['cloudflare']\ncache = false\n",
+            &DnscryptConfig {
+                resolver_id: Some("default".to_owned()),
+                cache_enabled: Some(true),
+                dnssec_required: None,
+            },
+        )
+        .expect("updated config");
+
+        let parsed = parse_config(&updated).expect("valid updated toml");
+        let config = parsed.config.expect("config");
+        assert_eq!(config.resolver_id, None);
+        assert_eq!(config.cache_enabled, Some(true));
     }
 
     #[test]

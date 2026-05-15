@@ -13,8 +13,8 @@ export component AppWindow inherits Window {
     in property <string> systemctl-status: "Unknown";
     in property <string> pkexec-status: "Unknown";
     in property <string> polkit-policy-status: "Unknown";
-    in property <string> current-resolver-id: "cloudflare";
-    in property <string> current-resolver-name: "Cloudflare";
+    in property <string> current-resolver-id: "default";
+    in property <string> current-resolver-name: "Default";
     in property <string> config-status: "unknown";
     in property <bool> cache-enabled: true;
     in property <bool> dnssec-enabled: true;
@@ -254,7 +254,7 @@ export component AppWindow inherits Window {
             x: root.content-x;
             y: root.content-y;
             width: root.content-width;
-            height: 512px;
+            height: 632px;
             current-resolver-id: root.current-resolver-id;
             current-resolver-name: root.current-resolver-name;
             config-status: root.config-status;

@@ -7,7 +7,7 @@ pub enum ActiveConnectionParseError {
 
 pub fn active_connection_uuids() -> Result<Vec<String>, ActiveConnectionParseError> {
     let output = Command::new("nmcli")
-        .args(["-t", "-f", "UUID,TYPE", "connection", "show", "--active"])
+        .args(["-t", "-f", "UUID,DEVICE", "connection", "show", "--active"])
         .output();
 
     match output {
@@ -28,7 +28,14 @@ pub fn parse_active_connection_uuids(
         .map(str::trim)
         .filter(|line| !line.is_empty())
     {
-        let uuid = line.split(':').next().unwrap_or_default();
+        let mut fields = line.split(':');
+        let uuid = fields.next().unwrap_or_default();
+        let device = fields.next().unwrap_or_default();
+
+        if device == "lo" {
+            continue;
+        }
+
         if !is_valid_uuid(uuid) {
             return Err(ActiveConnectionParseError::InvalidUuid(uuid.to_owned()));
         }
@@ -57,9 +64,9 @@ mod tests {
     fn parses_active_networkmanager_connection_uuids() {
         let uuids = parse_active_connection_uuids(
             "\
-123e4567-e89b-12d3-a456-426614174000:802-3-ethernet
-123e4567-e89b-12d3-a456-426614174111:802-11-wireless
-123e4567-e89b-12d3-a456-426614174222:vpn
+123e4567-e89b-12d3-a456-426614174000:wlp2s0
+123e4567-e89b-12d3-a456-426614174111:enp3s0
+123e4567-e89b-12d3-a456-426614174222:tun0
 ",
         )
         .expect("active connections");
@@ -75,9 +82,22 @@ mod tests {
     }
 
     #[test]
+    fn ignores_loopback_connection_from_original_helper_flow() {
+        let uuids = parse_active_connection_uuids(
+            "\
+123e4567-e89b-12d3-a456-426614174000:wlp2s0
+123e4567-e89b-12d3-a456-426614174111:lo
+",
+        )
+        .expect("active connections");
+
+        assert_eq!(uuids, vec!["123e4567-e89b-12d3-a456-426614174000"]);
+    }
+
+    #[test]
     fn ignores_empty_lines_and_extra_fields() {
         let uuids = parse_active_connection_uuids(
-            "\n123e4567-e89b-12d3-a456-426614174000:802-3-ethernet:activated\n",
+            "\n123e4567-e89b-12d3-a456-426614174000:wlp2s0:activated\n",
         )
         .expect("active connections");
 
@@ -86,8 +106,7 @@ mod tests {
 
     #[test]
     fn rejects_invalid_uuid_output() {
-        let error =
-            parse_active_connection_uuids("$(bad):802-3-ethernet\n").expect_err("invalid uuid");
+        let error = parse_active_connection_uuids("$(bad):wlp2s0\n").expect_err("invalid uuid");
 
         assert_eq!(
             error,

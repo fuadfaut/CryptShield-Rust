@@ -7,6 +7,11 @@ This changelog is for the CRYPTSHIELD-RUST repository.
 ## [Unreleased]
 
 ### Added
+- Aligned resolver support with the original CryptShield README: Default, Cloudflare, Google, Quad9, AdGuard, NextDNS, Cisco, Mullvad, CleanBrowsing, and Tiarap DNS.
+- Added UI/config mapping for dnscrypt-proxy resolver names such as `mullvad-doh`, `cleanbrowsing-adult`, and `doh.tiar.app`.
+- Added default load-balanced config handling by removing explicit `server_names`.
+- Updated NetworkManager dry-run plans to set IPv4 DNS to `127.0.0.1`, ignore IPv4/IPv6 auto DNS on start/restart, and restore both on stop.
+- Updated active connection parsing to use `UUID,DEVICE` output and skip loopback connections.
 - Added a CRYPTSHIELD-RUST project scaffold.
 - Added a custom CryptShield dashboard mock with sidebar, header, status card, metrics, and live traffic panel.
 - Added a custom animated switch-only protection control.

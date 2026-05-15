@@ -65,14 +65,14 @@ fn add_local_dns_connection_commands(commands: &mut Vec<CommandPlan>, connection
         commands.push(command(
             "nmcli",
             &[
-                "--wait",
-                "15",
                 "connection",
                 "modify",
                 uuid,
                 "ipv4.dns",
                 "127.0.0.1",
                 "ipv4.ignore-auto-dns",
+                "yes",
+                "ipv6.ignore-auto-dns",
                 "yes",
             ],
         ));
@@ -91,16 +91,18 @@ fn add_restore_dns_connection_commands(
         commands.push(command(
             "nmcli",
             &[
-                "--wait",
-                "15",
                 "connection",
                 "modify",
                 uuid,
                 "ipv4.ignore-auto-dns",
                 "no",
-                "ipv4.dns",
-                "",
+                "ipv6.ignore-auto-dns",
+                "no",
             ],
+        ));
+        commands.push(command(
+            "nmcli",
+            &["connection", "modify", uuid, "ipv4.dns", ""],
         ));
         commands.push(command(
             "nmcli",
@@ -155,14 +157,14 @@ mod tests {
                 command(
                     "nmcli",
                     &[
-                        "--wait",
-                        "15",
                         "connection",
                         "modify",
                         "123e4567-e89b-12d3-a456-426614174000",
                         "ipv4.dns",
                         "127.0.0.1",
                         "ipv4.ignore-auto-dns",
+                        "yes",
+                        "ipv6.ignore-auto-dns",
                         "yes",
                     ],
                 ),
@@ -195,13 +197,21 @@ mod tests {
                 command(
                     "nmcli",
                     &[
-                        "--wait",
-                        "15",
                         "connection",
                         "modify",
                         "123e4567-e89b-12d3-a456-426614174000",
                         "ipv4.ignore-auto-dns",
                         "no",
+                        "ipv6.ignore-auto-dns",
+                        "no",
+                    ],
+                ),
+                command(
+                    "nmcli",
+                    &[
+                        "connection",
+                        "modify",
+                        "123e4567-e89b-12d3-a456-426614174000",
                         "ipv4.dns",
                         "",
                     ],
@@ -244,14 +254,14 @@ mod tests {
             command(
                 "nmcli",
                 &[
-                    "--wait",
-                    "15",
                     "connection",
                     "modify",
                     "123e4567-e89b-12d3-a456-426614174000",
                     "ipv4.dns",
                     "127.0.0.1",
                     "ipv4.ignore-auto-dns",
+                    "yes",
+                    "ipv6.ignore-auto-dns",
                     "yes",
                 ],
             )
@@ -261,14 +271,14 @@ mod tests {
             command(
                 "nmcli",
                 &[
-                    "--wait",
-                    "15",
                     "connection",
                     "modify",
                     "123e4567-e89b-12d3-a456-426614174111",
                     "ipv4.dns",
                     "127.0.0.1",
                     "ipv4.ignore-auto-dns",
+                    "yes",
+                    "ipv6.ignore-auto-dns",
                     "yes",
                 ],
             )
@@ -299,6 +309,31 @@ mod tests {
         let config = parsed.config.expect("config");
         assert_eq!(config.resolver_id.as_deref(), Some("quad9"));
         assert_eq!(config.cache_enabled, Some(false));
+        assert_eq!(config.dnssec_required, Some(true));
+    }
+
+    #[test]
+    fn builds_config_update_plan_for_default_load_balanced_request() {
+        let request = parse_helper_request(&args(&[
+            "restart",
+            "default",
+            "true",
+            "true",
+            "123e4567-e89b-12d3-a456-426614174000",
+        ]))
+        .expect("valid request");
+
+        let plan = build_config_update_plan(
+            "server_names = ['cloudflare']\ncache = false\nrequire_dnssec = false\n",
+            &request,
+        )
+        .expect("config update plan")
+        .expect("restart updates config");
+
+        let parsed = parse_config(&plan.contents).expect("valid updated config");
+        let config = parsed.config.expect("config");
+        assert_eq!(config.resolver_id, None);
+        assert_eq!(config.cache_enabled, Some(true));
         assert_eq!(config.dnssec_required, Some(true));
     }
 
